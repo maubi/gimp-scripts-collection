@@ -1,5 +1,5 @@
 (define (draw-v-guide img x step max) 
-  (if (< x max)
+  (if (<= x (+ max 1))
       (begin
           (gimp-image-add-vguide img x)
           (draw-v-guide img (+ x step) step max)
@@ -8,7 +8,7 @@
 )
 
 (define (draw-h-guide img y step max) 
-  (if (< y max)
+  (if (<= y (+ max 1))
       (begin
           (gimp-image-add-hguide img y)
           (draw-h-guide img (+ y step) step max)
@@ -16,7 +16,7 @@
   )
 )
 
-(define (script-fu-guides-inside-selection img drawable factor)
+(define (script-fu-guides-inside-selection img drawable factor-v factor-h)
   (let* (
       ;(img-width (car (gimp-image-width img)))
       ;(img-height (car (gimp-image-height img)))
@@ -28,16 +28,16 @@
       (y2 (caddr (cddr boundaries)))
       (width (- x2 x1))
       (height (- y2 y1))
-      (wstep (/ width factor))
-      (hstep (/ height factor))
+      (step-v (/ width factor-v))
+      (step-h (/ height factor-h))
   )
 
   (gimp-context-push)
   (gimp-image-undo-enable img)
   (gimp-image-undo-group-start img)
 
-  (draw-v-guide img x1 wstep x2)
-  (draw-h-guide img y1 hstep y2)
+  (draw-v-guide img x1 step-v x2)
+  (draw-h-guide img y1 step-h y2)
 
   (gimp-image-undo-group-end img)
 
@@ -55,7 +55,8 @@
   "*"
   SF-IMAGE "Input Image"    0
   SF-DRAWABLE "Input Layer" 0
-  SF-ADJUSTMENT  "Split factor" '(2 2 10 1 1 0 0)
+  SF-ADJUSTMENT  "Vertical Step" '(2 2 10 1 1 0 0)
+  SF-ADJUSTMENT  "Horizontal Step" '(2 2 10 1 1 0 0)
 )
 
 (script-fu-menu-register "script-fu-guides-inside-selection"
